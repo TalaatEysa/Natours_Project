@@ -10,7 +10,7 @@ exports.getAllTours = async (req, res) => {
     const queryObject = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObject[el]);
-    
+
     // 1B) ADVANCED FILTERING
     let queryString = JSON.stringify(queryObject);
     queryString=queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
@@ -33,15 +33,22 @@ exports.getAllTours = async (req, res) => {
     } else {
       query = query.select('-__v');
     }
+    // 4) PAGINATION
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) { 
+      const numTours = await Tour.countDocuments();
+
+      if (skip >= numTours) throw new Error('This page does not exist');
+
+    }
 
     // EXECUTE QUERY
     const tours = await query;
 
-    // const query = Tour.find()
-    //   .where('duration')
-    //   .equals(5).
-    //   where('difficulty')
-    //   .equals('easy');
     // SEND RESPONSE
     
     res.status(200).json({
@@ -54,7 +61,7 @@ exports.getAllTours = async (req, res) => {
   } catch (err) {
     res.status(404).json({
       status: 'fail',
-      message: 'Invalid data sent',
+      message: 'Invalid data sent'
     });
   }
 };
