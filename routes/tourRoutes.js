@@ -8,10 +8,15 @@ const router = express.Router();
 router
     .route('/top-5-cheap')
     .get(tourController.aliasTopTour, tourController.getAllTours);
+
+router
+    .get('/tour-stats', tourController.getTourStats);
+
 router
     .route('/')
     .get(tourController.getAllTours)
     .post( tourController.createTour);
+
 router
     .route('/:id')
     .get(tourController.getTour)

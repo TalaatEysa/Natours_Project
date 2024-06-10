@@ -6,12 +6,12 @@ exports.aliasTopTour = (req, res, next) => {
   req.query.sort = '-ratingsAverage,price';
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
   next();
-  
+
 };
 
 exports.getAllTours = async (req, res) => {
   try {
-    
+
     // EXECUTE QUERY
     const features = new APIFeatures(Tour.find(), req.query)
       .filter()
@@ -21,7 +21,7 @@ exports.getAllTours = async (req, res) => {
     const tours = await features.query;
 
     // SEND RESPONSE
-    
+
     res.status(200).json({
       status: 'success',
       result: tours.length,
@@ -67,9 +67,9 @@ exports.createTour = async (req, res) => {
       message: err,
     });
   }
-  
+
 };
-exports.updateTour = async(req, res) => {
+exports.updateTour = async (req, res) => {
 
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body,
@@ -98,10 +98,51 @@ exports.deleteTour = async (req, res) => {
     res.status(204).json({
       status: 'deleted',
     });
-  }catch (err) {
+  } catch (err) {
     res.status(400).json({
       status: 'fail',
       message: 'Invalid data sent',
     });
   }
 };
+
+exports.getTourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } }
+      },
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty'},
+          numTours: { $sum: 1 },
+          numRating: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' },
+          averagePrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        }
+      },
+      {
+        $sort: {
+          averagePrice: 1
+        }
+      },
+      // {
+      //   $match: { _id: { $ne: 'EASY' } }
+      // }
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats
+      },
+    });
+
+  } catch {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid data sent',
+    });
+  }
+}
