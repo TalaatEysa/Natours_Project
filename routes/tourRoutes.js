@@ -6,24 +6,26 @@ const router = express.Router();
 
 // router.param('id', tourController.checkID);
 router
-    .route('/top-5-cheap')
-    .get(tourController.aliasTopTour, tourController.getAllTours);
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTour, tourController.getAllTours);
+
+router.get('/tour-stats', tourController.getTourStats);
+
+router.get('/monthly-plan/:year', tourController.getMonthlyPlan);
 
 router
-    .get('/tour-stats', tourController.getTourStats);
+  .route('/')
+  .get(authController.protect, tourController.getAllTours)
+  .post(tourController.createTour);
 
 router
-    .get('/monthly-plan/:year', tourController.getMonthlyPlan);
-
-router
-    .route('/')
-    .get(authController.protect, tourController.getAllTours)
-    .post(tourController.createTour);
-
-router
-    .route('/:id')
-    .get(tourController.getTour)
-    .patch(tourController.updateTour)
-    .delete(tourController.deleteTour);
+  .route('/:id')
+  .get(tourController.getTour)
+  .patch(tourController.updateTour)
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.deleteTour,
+  );
 
 module.exports = router;
