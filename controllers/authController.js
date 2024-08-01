@@ -152,11 +152,11 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
-  // 3) Update changedPasswordAt property for the user
-  //in pre save in usermodel
+  // 3) Update changedPasswordAt property for the user //in pre save in usermodel
   // 4) Log the user in, send JWT
   createSendToken(user, 200, res);
 });
+
 exports.updatePassword = catchAsync(async (req, res, next) => { 
   // 1) Get user from collection
   const user = await User.findById(req.user.id).select('+password');
