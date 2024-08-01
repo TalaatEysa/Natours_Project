@@ -3,7 +3,8 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongosanitize = require('express-mongo-sanitize');
-const xss=require('xss-clean')
+const xss = require('xss-clean');
+const hpp = require('hpp');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
@@ -33,6 +34,20 @@ app.use(express.json({ limit: '10kb' }));
 app.use(mongosanitize());
 // Data sanitization against XSS
 app.use(xss());
+
+// Prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
 
 //Serving static files
 app.use(express.static(`${__dirname}/public`));
