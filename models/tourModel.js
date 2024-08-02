@@ -106,7 +106,7 @@ const tourSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.ObjectId,
         ref: 'User',
-      }
+      },
     ],
   },
   {
@@ -123,7 +123,7 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
-//Whn embedding document
+//When embedding document
 // tourSchema.pre('save', async function (next) {
 //   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
 //   this.guides = await Promise.all(guidesPromises);
@@ -137,6 +137,14 @@ tourSchema.pre(/^find/, function (next) {
 });
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
   next();
 });
 
