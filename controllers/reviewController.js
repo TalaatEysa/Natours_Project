@@ -10,7 +10,6 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
       reviews,
     },
   });
-  next();
 });
 exports.createReview = catchAsync(async (req, res, next) => {
     // req.body.user=req.user._id
@@ -21,5 +20,4 @@ exports.createReview = catchAsync(async (req, res, next) => {
       review: newReview,
     },
   });
-  next();
 });
