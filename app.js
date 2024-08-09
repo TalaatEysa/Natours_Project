@@ -24,7 +24,22 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Set security HTTP headers
-app.use(helmet());
+// app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'https://api.mapbox.com', "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://api.mapbox.com'],
+        connectSrc: ["'self'", 'https://api.mapbox.com'],
+        workerSrc: ["'self'", 'blob:'],
+        // If you need to allow images or other resources from specific domains, you can add them here
+        imgSrc: ["'self'", 'data:', 'https://api.mapbox.com'], // Example for images
+      },
+    },
+  }),
+);
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -59,8 +74,6 @@ app.use(
   }),
 );
 
-
-
 // Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -68,7 +81,6 @@ app.use((req, res, next) => {
 });
 
 // Route Handlers
-
 
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
