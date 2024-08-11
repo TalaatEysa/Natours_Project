@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongosanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
@@ -24,22 +25,44 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Set security HTTP headers
-// app.use(helmet());
+app.use(helmet());
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", 'https://api.mapbox.com', "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://api.mapbox.com'],
-        connectSrc: ["'self'", 'https://api.mapbox.com'],
-        workerSrc: ["'self'", 'blob:'],
-        // If you need to allow images or other resources from specific domains, you can add them here
-        imgSrc: ["'self'", 'data:', 'https://api.mapbox.com'], // Example for images
+        scriptSrc: [
+          "'self'",
+          'https://api.mapbox.com',
+          'https://cdnjs.cloudflare.com',
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com',
+          'https://api.mapbox.com', // Allow Mapbox CSS
+        ],
+        styleSrcElem: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com',
+          'https://api.mapbox.com', // Allow Mapbox CSS
+        ],
+        connectSrc: [
+          "'self'",
+          'https://api.mapbox.com',
+          'https://events.mapbox.com', // Allow Mapbox events endpoint
+          'ws://127.0.0.1:54339', // Allow WebSocket connections for development
+        ],
+        imgSrc: ["'self'", 'data:', 'https://api.mapbox.com'],
+        workerSrc: ["'self'", 'blob:', 'https://api.mapbox.com'], // Allow WebWorkers
       },
     },
   }),
 );
+
+
+
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -54,6 +77,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
 app.use(mongosanitize());
@@ -77,6 +101,7 @@ app.use(
 // Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.cookies);
   next();
 });
 
