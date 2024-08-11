@@ -2,4 +2,4 @@
 .prettierrc
 .eslintrc.json
 config.env
-/public/js/mapbox.js
+/public/js/mapAccessToken.js
