@@ -3,3 +3,4 @@
 .eslintrc.json
 config.env
 /public/js/mapAccessToken.js
+/.cache

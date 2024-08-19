@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongosanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors=require('cors');
 const cookieParser = require('cookie-parser');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -25,7 +26,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Set security HTTP headers
-app.use(helmet());
+// app.use(helmet());
+app.use(cors());
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -40,22 +42,25 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           'https://fonts.googleapis.com',
-          'https://api.mapbox.com', // Allow Mapbox CSS
+          'https://api.mapbox.com',
         ],
         styleSrcElem: [
           "'self'",
           "'unsafe-inline'",
           'https://fonts.googleapis.com',
-          'https://api.mapbox.com', // Allow Mapbox CSS
+          'https://api.mapbox.com',
         ],
         connectSrc: [
           "'self'",
           'https://api.mapbox.com',
-          'https://events.mapbox.com', // Allow Mapbox events endpoint
-          'ws://127.0.0.1:54339', // Allow WebSocket connections for development
+          'https://events.mapbox.com',
+          'ws://127.0.0.1:54339',
+          'ws://localhost:62082',
+          'ws://localhost:60179', // Add this if you need to connect to this WebSocket
+          'http://127.0.0.1:3000', // Add this for your API calls
         ],
         imgSrc: ["'self'", 'data:', 'https://api.mapbox.com'],
-        workerSrc: ["'self'", 'blob:', 'https://api.mapbox.com'], // Allow WebWorkers
+        workerSrc: ["'self'", 'blob:', 'https://api.mapbox.com'],
       },
     },
   }),
